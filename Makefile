@@ -2,7 +2,7 @@ empty :=
 space := $(empty) $(empty)
 comma := ,
 
-languages := go java js php ruby python c swift
+languages := go java js php ruby python c swift csharp
 
 .PHONY: all
 
@@ -160,3 +160,16 @@ postprocess/swift:
 
 clean/swift:
 	find . -name '*.swift' -delete
+
+.PHONY: %.pb.csharp
+
+csharp_replace := -pe 's!global::Gogoproto\.GogoReflection\.Descriptor, !!;'
+
+%.pb.csharp: %.proto
+	@$(PROTOC) --csharp_out=$(PROTOC_API_PATH)/csharp --csharp_opt=base_namespace=TheThingsNetwork $(PROTOC_API_PATH)/$<
+
+postprocess/csharp:
+	@find . -type f -name '*.cs' -exec perl -i $(csharp_replace) {} \;
+
+clean/csharp:
+	rm -rf csharp/API
